@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Story nova parceria · achei!BR</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#EEF2FD;font-family:Outfit,Arial,sans-serif;color:#14213D}
+.w{max-width:560px;margin:0 auto;padding:22px 16px 40px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:28px;margin:4px 0 0}
+p{margin:0;color:#4A5470;font-size:15px;line-height:1.45}
+#out{width:100%;max-width:380px;border-radius:18px;box-shadow:0 14px 40px -18px rgba(20,33,61,.5);background:#2246C6;min-height:200px;display:block}
+.bt{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.b{border:0;border-radius:12px;padding:13px 20px;font:600 16px Outfit,Arial,sans-serif;cursor:pointer;text-decoration:none}
+.b1{background:#FFD95E;color:#14213D}.b2{background:#2246C6;color:#fff}.b3{background:#fff;color:#2246C6;border:1.5px solid #2246C6}
+.tg{display:flex;gap:6px;background:#fff;border-radius:12px;padding:4px}.tg button{border:0;background:none;padding:8px 14px;border-radius:9px;font:600 14px Outfit,sans-serif;color:#4A5470;cursor:pointer}.tg button.on{background:#2246C6;color:#fff}.tg{flex-wrap:wrap;justify-content:center}.cap{width:100%;background:#fff;border-radius:14px;padding:14px 16px;font:15px/1.5 Outfit,sans-serif;color:#14213D;text-align:left;white-space:pre-line}.bw{background:#1F7A3E!important;color:#fff!important}
+input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #C9D3F2;font:16px Outfit,sans-serif}
+#lista a{display:block;padding:10px 12px;background:#fff;border-radius:10px;margin-top:6px;color:#2246C6;text-decoration:none;font-weight:600;text-align:left}
+.dica{font-size:13px;color:#6B7390}
+.cli .tg,.cli #bWa,.cli #bPost,.cli a.b3,.cli #busca{display:none!important}.cli h1{font-size:0}.cli h1:after{content:"Seu story do achei!BR 🎄";font-size:28px}</style>
+</head><body><div class="w">
+<h1>Central de stories 🎄</h1>
+<div id="busca" style="display:none;width:100%"><p style="margin:6px 0 10px">Os mais novos aparecem em cima:</p><input id="q" placeholder="Buscar pelo nome…" autocomplete="off"><div id="lista"></div></div>
+<div id="selo" style="display:none;width:100%;flex-direction:column;gap:14px;align-items:center">
+<div class="tg"><button id="tE">Estou no achei!BR</button><button id="tN" class="on">Novo negócio</button><button id="tA">Parceira</button><button id="tO">Parceiro</button></div>
+<div class="tg" id="fitBox" style="display:none"><button id="fIn" class="on">🖼️ Foto inteira</button><button id="fFill">🔍 Preencher</button></div><div id="oyBox" style="display:none;width:100%;align-items:center;gap:10px;font:600 14px Outfit,sans-serif;color:#4A5470">⬆️<input id="oy" type="range" min="0" max="100" value="50" style="flex:1">⬇️</div><p class="dica" id="oyDica" style="margin:-6px 0 0;display:none">Arraste para ajustar o enquadramento da foto</p><img id="out" alt="Story">
+<div class="bt"><button class="b b1" id="bShare">📲 Compartilhar</button><a class="b b2" id="bDown" download="story.png">⬇️ Baixar imagem</a></div>
+<div id="capBox" style="display:none;width:100%;flex-direction:column;gap:10px"><div class="cap" id="cap"></div><button class="b b2" id="bCap">📋 Copiar texto</button></div>
+<a class="b bw" id="bWa" target="_blank" rel="noopener" style="display:none">💬 Enviar o story para o negócio</a>
+<p class="dica">No celular, toque e segure a imagem para salvar. Depois poste nos stories e marque o @ do negócio.</p>
+<button class="b b3" id="bPost">✅ Marcar como postado</button>
+<a class="b b3" href="/story/">⬅️ Voltar para a lista</a></div>
+<p id="msg" class="dica">Carregando…</p></div>
+<script>
+const PLANILHA_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTc0kq5yHCbxRU2aqVcil19asOjla4YAFFBDY07HCz1sBdCL7zfvTq5Guv66pJvoK9nlYHGIW-qNPMn/pub?gid=1724896666&single=true&output=csv";
+const nz=s=>(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const slug=s=>nz(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+function csv(t){const R=[];let r=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){r.push(f);f=""}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);R.push(r);r=[];f=""}else f+=c}if(f!==""||r.length){r.push(f);R.push(r)}return R}
+let BIZ=[],cur=null,fmt="post";
+const msg=document.getElementById("msg");
+async function load(){
+ const t=await fetch(PLANILHA_CSV,{cache:"no-store"}).then(r=>r.text());const rows=csv(t);const h=rows[0].map(nz);
+ const col=(...k)=>{for(const a of k){const i=h.findIndex(x=>x.indexOf(a)===0);if(i>=0)return i}return -1};
+ const C={wa:h.findIndex(x=>x.includes("whatsapp")),ts:h.findIndex(x=>/carimbo|timestamp|data\/hora/.test(x)),ig:h.findIndex(x=>x.includes("instagram")),n:col("nome do negocio"),st:col("status"),au:col("autoriz"),lg:col("logo da marca","foto ou logo","logo ou foto","foto"),cat:col("area do seu","categoria"),pl:col("plano")};
+ const seen={};
+ for(const r of rows.slice(1)){const n=(r[C.n]||"").trim();if(!n)continue;if(C.st>=0&&!/aprovad/i.test(r[C.st]||""))continue;if(seen[nz(n)])continue;seen[nz(n)]=1;
+  const id=((r[C.lg]||"").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1]||"";const pv=C.pl>=0?(r[C.pl]||""):"";const igv=C.ig>=0?(r[C.ig]||"").trim():"";const h2=(igv.match(/instagram\.com\/([\w.]+)/i)||[])[1]||igv.replace(/^@/,"").replace(/\s+/g,"");BIZ.push({n,ts:C.ts>=0?(()=>{const d=(r[C.ts]||"").split(" ")[0].split("/");return d.length==3?(d[1].padStart(2,"0")+"/"+d[0].padStart(2,"0")+"/"+d[2]):""})():"",s:slug(n),id,ig:h2,wa:C.wa>=0?(r[C.wa]||"").replace(/\D/g,""):"",plano:/empresa|business/i.test(pv)?"business":/achei\+|premium/i.test(pv)?"premium":"basico"})}
+}
+
+function img(src){return new Promise((res,rej)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=rej;i.src=src})}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+let LN=null,IC=null,LB=null,modo="n",OY=0.5,FIT="in";
+function fitUI(){const has=!!LB;document.getElementById("fitBox").style.display=has?"flex":"none";document.getElementById("fIn").classList.toggle("on",FIT=="in");document.getElementById("fFill").classList.toggle("on",FIT!="in");const f=has&&FIT!="in";document.getElementById("oyBox").style.display=f?"flex":"none";document.getElementById("oyDica").style.display=f?"block":"none"}
+document.addEventListener("click",e=>{const id=e.target&&e.target.id;if(id=="fIn"||id=="fFill"){FIT=id=="fIn"?"in":"fill";fitUI();draw()}});
+const T={e:["Agora estou","ME ENCONTRE NO GUIA 💛"],n:["Novo negócio","BEM-VINDOS À NOSSA REDE 💛"],a:["Mais uma parceira","BEM-VINDA À NOSSA REDE 💛"],o:["Mais um parceiro","BEM-VINDO À NOSSA REDE 💛"]};
+document.addEventListener("input",e=>{if(e.target&&e.target.id=="oy"){OY=e.target.value/100;draw()}});
+function upCap(){const at=cur.ig?"@"+cur.ig:cur.n;const box=document.getElementById("capBox");const c=document.getElementById("cap");
+ if(modo=="e"){c.textContent="Agora estou no achei!BR 🇧🇷💛\nO guia de produtos e serviços brasileiros em Barcelona.\n\nMe encontre em acheibr.es\nSiga @acheibr.es";box.style.display="flex"}else{c.textContent="Bem-vindo(a) ao achei!BR, "+at+"! 💛\nConheça este e outros negócios brasileiros em Barcelona: acheibr.es";box.style.display="flex"}
+ const w=document.getElementById("bWa");if(cur.wa){const link="https://acheibr.es/story/?n="+cur.s+"&m=e";w.href="https://wa.me/"+cur.wa+"?text="+encodeURIComponent("Olá! 🎉 Seu negócio já está no ar no achei!BR. Preparamos um story especial para você compartilhar nos seus stories e marcar @acheibr.es 💛\n\n👉 "+link);w.style.display="flex"}else w.style.display="none"}
+document.addEventListener("click",e=>{if(e.target&&e.target.id=="bCap"){navigator.clipboard.writeText(document.getElementById("cap").textContent).then(()=>{e.target.textContent="✅ Texto copiado"})}});
+function draw(){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
+ x.fillStyle="#2346C6";x.fillRect(0,0,W,H);
+ let sd=7;const rnd=()=>{sd=(sd*9301+49297)%233280;return sd/233280};
+ for(let i=0;i<80;i++){x.globalAlpha=.3+rnd()*.5;x.fillStyle="#fff";x.beginPath();x.arc(rnd()*W,rnd()*H,1.5+rnd()*4,0,7);x.fill()}x.globalAlpha=1;
+ if(LN){const lw=560,lh=lw*LN.height/LN.width;x.drawImage(LN,(W-lw)/2,110,lw,lh)}
+ x.textAlign="center";x.fillStyle="#fff";x.font="600 88px Fraunces, Georgia, serif";x.fillText(T[modo][0],W/2,520);
+ x.font="italic 600 88px Fraunces, Georgia, serif";const t2="achei!BR";const w1=x.measureText("no ").width,w2=x.measureText(t2).width;
+ x.font="600 88px Fraunces, Georgia, serif";const wno=x.measureText("no ").width;const tot=wno+w2+90;let sx=(W-tot)/2;x.textAlign="left";x.fillText("no ",sx,620);
+ x.font="italic 600 88px Fraunces, Georgia, serif";x.fillStyle="#FFD95E";x.fillText(t2,sx+wno,620);x.font="80px serif";x.fillText("🎄",sx+wno+w2+12,618);
+ const fx=110,fy=730,fw=860,fh=600;x.save();x.shadowColor="rgba(0,0,30,.35)";x.shadowBlur=50;x.shadowOffsetY=20;x.fillStyle="#FFD95E";rr(x,fx,fy,fw,fh,40);x.fill();x.restore();
+ x.fillStyle="#fff";rr(x,fx+14,fy+14,fw-28,fh-28,28);x.fill();
+ x.save();rr(x,fx+14,fy+14,fw-28,fh-28,28);x.clip();
+ if(LB){const iw=fw-28,ih=fh-28,ox=fx+14,oy=fy+14,k=Math.max(iw/LB.width,ih/LB.height),dw=LB.width*k,dh=LB.height*k;if(FIT=="in"){const t=document.createElement("canvas");t.width=28;t.height=Math.max(1,Math.round(28*LB.height/LB.width));t.getContext("2d").drawImage(LB,0,0,t.width,t.height);x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(t,ox+(iw-dw)/2,oy+(ih-dh)/2,dw,dh);x.fillStyle="rgba(255,255,255,.35)";x.fillRect(ox,oy,iw,ih);const k2=Math.min(iw/LB.width,ih/LB.height),w2=LB.width*k2,h2=LB.height*k2;x.save();x.shadowColor="rgba(0,0,30,.25)";x.shadowBlur=24;x.drawImage(LB,ox+(iw-w2)/2,oy+(ih-h2)/2,w2,h2);x.restore()}else x.drawImage(LB,ox+(iw-dw)/2,oy+(ih-dh)*OY,dw,dh)}
+ else{x.fillStyle="#2246C6";x.textAlign="center";x.font="600 220px Fraunces, Georgia, serif";x.fillText((cur.n||"?")[0].toUpperCase(),W/2,fy+fh/2+75)}x.restore();
+ x.textAlign="center";x.fillStyle="#FFD95E";x.font="700 30px Outfit, Arial";try{x.letterSpacing="7px"}catch(e){}x.fillText(T[modo][1],W/2,1420);try{x.letterSpacing="0px"}catch(e){}
+ x.textAlign="left";x.fillStyle="#fff";let h=cur.ig?"@"+cur.ig:cur.n;let fs=52;x.font="700 "+fs+"px Outfit, Arial";while(x.measureText(h).width>820&&fs>30){fs-=2;x.font="700 "+fs+"px Outfit, Arial"}x.fillText(h,90,1530);
+ x.strokeStyle="rgba(255,255,255,.6)";x.lineWidth=3;x.setLineDash([10,8]);x.beginPath();x.moveTo(90,1560);x.lineTo(90+x.measureText(h).width,1560);x.stroke();x.setLineDash([]);
+ x.fillStyle="#FFD95E";rr(x,90,1595,306,88,18);x.fill();x.fillStyle="#14213D";x.font="700 44px Outfit, Arial";x.textAlign="center";x.fillText("acheibr.es",243,1655);
+ if(IC){const iw=258,ih=iw*IC.height/IC.width;x.drawImage(IC,90,1700,iw,ih)}
+ [["#0A6B35",0],["#FFD95E",1],["#14213D",2]].forEach(([c,i])=>{x.fillStyle=c;x.fillRect(i*W/3,H-22,W/3+1,22)});
+ upCap();const url=cv.toDataURL("image/png");document.getElementById("out").src=url;const a=document.getElementById("bDown");a.href=url;a.download="story-acheibr-"+cur.s+".png";window._cv=cv}
+async function show(b){cur=b;document.getElementById("busca").style.display="none";document.getElementById("selo").style.display="flex";msg.textContent="";history.replaceState(null,"","?n="+b.s+(modo=="e"?"&m=e":""));
+ if(!LN){try{LN=await img("logo-natal.png")}catch(e){}}if(!IC){try{IC=await img("icones.png")}catch(e){}}
+ OY=0.5;LB=null;if(b.id){try{LB=await img("https://lh3.googleusercontent.com/d/"+b.id+"=w1200")}catch(e){LB=null}if(LB&&LB.height>LB.width*1.05)OY=0.12;const sl=document.getElementById("oy");if(sl)sl.value=Math.round(OY*100)}FIT="in";fitUI();
+ upd();try{await Promise.all(["600 88px Fraunces","italic 600 88px Fraunces","700 44px Outfit"].map(f=>document.fonts.load(f)))}catch(e){}draw()}
+function upd(){const b=document.getElementById("bPost");const p=getP()[cur.s];b.textContent=p?"↩️ Desmarcar (ainda não postei)":"✅ Marcar como postado"}
+document.getElementById("bPost").onclick=()=>{setP(cur.s,!getP()[cur.s]);upd()};
+const tg={tE:"e",tN:"n",tA:"a",tO:"o"};Object.keys(tg).forEach(k=>{document.getElementById(k).onclick=()=>{modo=tg[k];Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",j==k));draw()}});
+document.getElementById("bShare").onclick=()=>{window._cv.toBlob(async bl=>{const f=new File([bl],"story-acheibr.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(e){}}else document.getElementById("bDown").click()})};
+const PK="ab_story_postado";const getP=()=>{try{return JSON.parse(localStorage.getItem(PK)||"{}")}catch(e){return {}}};const setP=(k,v)=>{try{const o=getP();if(v)o[k]=1;else delete o[k];localStorage.setItem(PK,JSON.stringify(o))}catch(e){}};
+function busca(){document.getElementById("busca").style.display="block";msg.textContent="";const q=document.getElementById("q"),l=document.getElementById("lista");
+ const r=()=>{const v=nz(q.value);const P=getP();l.innerHTML="";const L=BIZ.slice().reverse().filter(b=>!v||nz(b.n).includes(v));
+  const mk=(t)=>{const d=document.createElement("div");d.style.cssText="font-weight:700;font-size:13px;letter-spacing:.12em;color:#4A5470;margin:14px 0 6px;text-align:left";d.textContent=t;l.appendChild(d)};
+  const it=b=>{const a=document.createElement("a");a.href="?n="+b.s;a.innerHTML=(P[b.s]?"✅ ":"🆕 ")+b.n+(b.ts?' <span style="font-weight:400;color:#8A93AB;font-size:13px">· '+b.ts+'</span>':"");a.onclick=e=>{e.preventDefault();show(b)};l.appendChild(a)};
+  const novos=L.filter(b=>!P[b.s]),feitos=L.filter(b=>P[b.s]);if(novos.length){mk("PARA POSTAR ("+novos.length+")");novos.forEach(it)}if(feitos.length){mk("JÁ POSTADOS ("+feitos.length+")");feitos.forEach(it)}};q.oninput=r;r()}
+(async()=>{if(new URLSearchParams(location.search).get("m")=="e"){modo="e";document.documentElement.classList.add("cli");setTimeout(()=>{Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",tg[j]=="e"))},0)}try{await load()}catch(e){msg.textContent="Não consegui carregar os cadastros agora.";return}
+ const n=slug(new URLSearchParams(location.search).get("n")||"");const b=n&&(BIZ.find(b=>b.s===n)||BIZ.find(b=>b.s.includes(n)));if(b)show(b);else busca()})();
+</script></body></html>
