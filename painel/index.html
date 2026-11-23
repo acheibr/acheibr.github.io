@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel achei!BR</title><meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#070B16">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}body{background:#070B16;color:#EDEFF5;font-family:Inter,Arial,sans-serif;min-height:100vh}
+.w{max-width:560px;margin:0 auto;padding:26px 18px 50px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:300;font-size:32px;color:#fff}.sub{color:#8590AA;font-size:13px;margin-top:6px}
+.kp{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:22px 0 4px}
+.k{display:block;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px 4px 10px;text-align:center;border-top:3px solid var(--c)}
+.k b{font-family:Fraunces,serif;font-weight:300;font-size:28px;display:block;color:var(--c)}.k span{font-size:10.5px;color:#8590AA;line-height:1.25;display:block;margin-top:4px}
+h2{font-family:Fraunces,serif;font-weight:300;font-size:20px;margin:30px 0 8px;display:flex;align-items:center;gap:10px;color:#fff;scroll-margin-top:14px}
+h2 i{width:10px;height:10px;border-radius:50%;background:var(--c);display:inline-block}
+.n{font-family:Inter;font-size:11px;border-radius:99px;padding:1px 8px;font-weight:600;background:#1B2A55;color:#C9D3F2}
+.sec{border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:2px 16px}
+.it{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.07)}.it:last-child{border-bottom:0}
+.av{width:42px;height:42px;border-radius:50%;background:#162244 center/cover no-repeat;color:#C9D3F2;display:flex;align-items:center;justify-content:center;font-family:Fraunces;font-size:18px;flex:none}
+.tx{flex:1;min-width:0}.tx b{font-weight:500;font-size:14px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tx small{color:#8590AA;font-size:12px}
+.b{background:#1F7A3E;color:#fff;font-size:12px;font-weight:600;padding:10px 13px;border-radius:10px;white-space:nowrap;text-decoration:none;flex:none}
+.b.o{background:transparent;border:1px solid rgba(255,255,255,.25)}
+.t{font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px;font-weight:700;background:#FFD95E;color:#070B16;vertical-align:middle}
+.vz{color:#8590AA;font-size:13px;padding:14px 0}
+.dica{color:#8590AA;font-size:12px;margin:8px 2px 0;line-height:1.4}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px;padding:14px 0}
+.gal a{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:#8590AA;font-size:10px;text-align:center}
+.gal span{width:56px;height:56px;border-radius:50%;background:#162244 center/cover no-repeat;border:1px solid rgba(255,255,255,.2)}
+#gate{max-width:340px;margin:20vh auto;padding:0 20px;text-align:center}#gate input{width:100%;height:50px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:#0E1428;color:#fff;font:inherit;font-size:17px;padding:0 14px;margin:18px 0 10px;text-align:center}
+#gate button{width:100%;height:50px;border:0;border-radius:12px;background:#1F7A3E;color:#fff;font:600 16px Inter,sans-serif}
+.rf{float:right;color:#C9D3F2;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:6px 12px;margin-top:6px}
+@media(max-width:420px){.k b{font-size:24px}.k span{font-size:9.5px}}
+</style></head><body>
+<div id="gate"><h1>Painel achei!BR</h1><p class="sub">Área só da Paola</p><input id="pw" type="password" placeholder="Senha" aria-label="Senha"><button id="go">Entrar</button><p class="dica" id="pwm"></p></div>
+<div class="w" id="app" style="display:none">
+<a class="rf" href="#" onclick="location.reload();return false">↻ Atualizar</a>
+<h1>Painel achei!BR</h1><div class="sub" id="upd">Carregando…</div>
+<div class="kp" id="kp"></div>
+<div id="secs"></div>
+</div>
+<script>
+const SENHA="achei2026";
+const CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTc0kq5yHCbxRU2aqVcil19asOjla4YAFFBDY07HCz1sBdCL7zfvTq5Guv66pJvoK9nlYHGIW-qNPMn/pub?gid=1724896666&single=true&output=csv";
+const SHEET="https://docs.google.com/spreadsheets/d/1JJnKN23H3TjAP2ShxGy0q2-zgWq7BfeEhBeBrUk5seo/edit#gid=1724896666&range=A";
+const gate=document.getElementById("gate"),app=document.getElementById("app");
+function abrir(){gate.style.display="none";app.style.display="block";carregar()}
+try{if(localStorage.getItem("ab_painel")==="ok")abrir()}catch(e){}
+document.getElementById("go").onclick=()=>{if(document.getElementById("pw").value.trim()===SENHA){try{localStorage.setItem("ab_painel","ok")}catch(e){}abrir()}else document.getElementById("pwm").textContent="Senha errada"};
+document.getElementById("pw").onkeydown=e=>{if(e.key==="Enter")document.getElementById("go").click()};
+const nz=s=>(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const slug=s=>nz(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+function csv(t){const R=[];let r=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){r.push(f);f=""}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);R.push(r);r=[];f=""}else f+=c}if(f!==""||r.length){r.push(f);R.push(r)}return R}
+function data(s){s=(s||"").trim();let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return new Date(+m[1],m[2]-1,+m[3]);m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!m)return null;let a=+m[1],b=+m[2];if(b>12)return new Date(+m[3],a-1,b);return new Date(+m[3],b-1,a)}
+function wa(n,txt){let d=(n||"").replace(/\D/g,"");if(d.length===9&&/^[6-9]/.test(d))d="34"+d;if(d.length<8||d.length>13)return "";return "https://wa.me/"+d+"?text="+encodeURIComponent(txt)}
+const M={
+ foto:n=>`Oi! Aqui é a Paola, do achei!BR 💛 Seu cadastro (${n}) está quase pronto! Só falta uma foto para o seu cartão no site: pode ser o seu logo ou uma foto sua ou do seu trabalho. Me manda por aqui? Se não tiver logo, eu faço um para você por 5,30 € (3 opções + 1 ajuste) ✨`,
+ logo:n=>`Oi! Aqui é a Paola, do achei!BR 💛 Vi que o ${n} ainda não tem um logo. Quer que eu crie um para você? Logo simples por 5,30 €: 3 opções + 1 ajuste ✨ Fica lindo no site, no Instagram e no story de boas-vindas!`,
+ data:n=>`Oi! Aqui é a Paola, do achei!BR 💛 Sobre a promoção do ${n} no site: até quando ela vale? Me manda a data, que eu atualizo 😊`,
+ aviso:(n,d)=>`Oi! Aqui é a Paola, do achei!BR 💛 A promoção do ${n} no site vale até ${d}. Quer estender a data ou criar uma nova promoção? 😊`};
+const SEC=[["apr","Esperando aprovação","#FFD95E","esperando<br>aprovação"],["sto","Story de boas-vindas pendente","#8FB0FF","stories<br>pendentes"],["fot","Sem foto","#FF9B9B","sem<br>foto"],["log","Oferecer logo 5,30 €","#4ADE80","oferecer<br>logo"],["cup","Cupons e validade","#E6C67F","cupons<br>ativos"]];
+async function carregar(){
+ let t;try{t=await fetch(CSV+"&t="+Date.now(),{cache:"no-store"}).then(r=>r.text())}catch(e){document.getElementById("upd").textContent="Não consegui ler a planilha. Toque em Atualizar.";return}
+ const R=csv(t),h=R[0].map(nz);const col=(...k)=>{for(const a of k){const i=h.findIndex(x=>x.indexOf(a)===0);if(i>=0)return i}return -1};
+ const last=k=>{let r=-1;h.forEach((x,i)=>{if(x.indexOf(k)===0)r=i});return r};
+ const C={n:col("nome do negocio"),d:col("seu nome"),w:col("whatsapp"),ig:col("instagram"),pl:col("plano"),f:col("logo ou foto","logo da marca","foto ou logo"),st:col("status"),selo:col("selo enviado"),camp:col("campanha"),esp:col("essa promocao"),logo:col("quer que o achei"),tp:col("escolha a promocao"),pv:col("valor da promocao"),ate1:col("promocao valida"),ate2:last("promocao valida")};
+ const g=(r,k)=>C[k]>=0?(r[C[k]]||"").trim():"";
+ const hoje=new Date();hoje.setHours(0,0,0,0);
+ const S={apr:[],sto:[],fot:[],log:[],cup:[]},gal=[];const vistos={};
+ R.slice(1).forEach((r,ix)=>{const n=g(r,"n");if(!n)return;const row=ix+2;const k=nz(n);if(vistos[k])return;vistos[k]=1;
+  const x={n,row,d:g(r,"d"),w:g(r,"w"),ig:g(r,"ig"),pl:g(r,"pl"),aprov:/aprovad/i.test(g(r,"st")),selo:g(r,"selo")};
+  const fid=(g(r,"f").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1];x.img=fid?"https://drive.google.com/thumbnail?id="+fid+"&sz=w200":"";
+  if(!x.aprov)S.apr.push(x);
+  if(x.aprov&&!x.selo)S.sto.push(x);
+  if(!x.img)S.fot.push(x);else if(x.aprov)gal.push(x);
+  if(/^sim/i.test(g(r,"logo")))S.log.push(x);
+  const promo=g(r,"pv")||(nz(g(r,"tp")).match(/nao quero|nenhum/)?"":g(r,"tp"));
+  if(x.aprov&&promo){const dt=data(g(r,"ate2")||g(r,"ate1"));const bf=/black/i.test(g(r,"camp")+" "+g(r,"esp"));
+   if(!dt||dt>=hoje){x.promo=promo;x.bf=bf;x.dt=dt;x.dias=dt?Math.round((dt-hoje)/864e5):null;S.cup.push(x)}}
+ });
+ S.cup.sort((a,b)=>(a.dias??999)-(b.dias??999));
+ const av=x=>`<span class="av"${x.img?` style="background-image:url('${x.img}')"`:""}>${x.img?"":esc(x.n.trim()[0].toUpperCase())}</span>`;
+ const btn=(href,txt,o)=>href?`<a class="b${o?" o":""}" href="${href}" target="_blank" rel="noopener">${txt}</a>`:`<span class="b o" style="opacity:.5">conferir nº</span>`;
+ const it=(x,sub,b)=>`<div class="it">${av(x)}<div class="tx"><b>${esc(x.n)}${x.bf?'<span class="t">BF</span>':""}</b><small>${sub}</small></div>${b}</div>`;
+ const fmt=d=>String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
+ const R2={
+  apr:x=>it(x,esc(x.pl||"sem plano")+(x.ig?" · "+esc(x.ig):""),btn(SHEET+x.row,"Planilha")),
+  sto:x=>it(x,esc(x.ig||x.d||""),btn("/story/?n="+slug(x.n),"Fazer story")),
+  fot:x=>it(x,(x.aprov?"aprovado":"esperando")+" · "+esc(x.w||"sem WhatsApp"),btn(wa(x.w,M.foto(x.n)),"Pedir foto")),
+  log:x=>it(x,"marcou “Sim” no cadastro",btn(wa(x.w,M.logo(x.n)),"Combinar")),
+  cup:x=>it(x,esc(x.promo)+" · "+(x.dt?("até "+fmt(x.dt)+(x.dias<=3?" · faltam "+x.dias+(x.dias===1?" dia":" dias"):"")):"sem data"),x.dt?(x.dias<=3?btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"Avisar"):btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"WhatsApp",1)):btn(wa(x.w,M.data(x.n)),"Pedir data"))};
+ const DICA={apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Depois de postar, escreva a data na coluna “Selo enviado” da planilha e ele sai desta lista.",fot:"Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Toque numa foto abaixo para oferecer o logo a quem só tem foto do rosto.",cup:"Cupons que já venceram saem do site sozinhos."};
+ document.getElementById("kp").innerHTML=SEC.map(([id,,c,lab])=>`<a class="k" href="#${id}" style="--c:${c}"><b>${S[id].length}</b><span>${lab}</span></a>`).join("");
+ document.getElementById("secs").innerHTML=SEC.map(([id,tit,c])=>`<h2 id="${id}" style="--c:${c}"><i></i>${tit} <span class="n">${S[id].length}</span></h2><div class="sec">${S[id].length?S[id].map(R2[id]).join(""):'<div class="vz">Nada pendente ✓</div>'}${id==="log"&&gal.length?`<div class="gal">${gal.map(x=>`<a href="${wa(x.w,M.logo(x.n))||"#"}" target="_blank" rel="noopener"><span style="background-image:url('${x.img}')"></span>${esc(x.n.slice(0,14))}</a>`).join("")}</div>`:""}</div><p class="dica">${DICA[id]}</p>`).join("");
+ const d=new Date();document.getElementById("upd").textContent="Atualizado às "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+" · "+(R.length-1)+" cadastros";
+}
+</script>
+</body></html>
