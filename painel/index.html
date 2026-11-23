@@ -67,12 +67,13 @@ async function carregar(){
  const C={n:col("nome do negocio"),d:col("seu nome"),w:col("whatsapp"),ig:col("instagram"),pl:col("plano"),f:col("logo ou foto","logo da marca","foto ou logo"),f2:col("mais fotos"),st:col("status"),selo:col("selo enviado"),sp:col("story postado"),camp:col("campanha"),esp:col("essa promocao"),logo:col("quer que o achei"),tp:col("escolha a promocao"),pv:col("valor da promocao"),ate1:col("promocao valida"),ate2:last("promocao valida")};
  const g=(r,k)=>C[k]>=0?(r[C[k]]||"").trim():"";
  const hoje=new Date();hoje.setHours(0,0,0,0);
+ let PS={};try{PS=JSON.parse(localStorage.getItem("ab_story_postado")||"{}")}catch(e){}
  const S={apr:[],sto:[],fot:[],log:[],cup:[]},gal=[];const vistos={};
  R.slice(1).forEach((r,ix)=>{const n=g(r,"n");if(!n)return;const row=ix+2;const k=nz(n);if(vistos[k])return;vistos[k]=1;
   const x={n,row,d:g(r,"d"),w:g(r,"w"),ig:g(r,"ig"),pl:g(r,"pl"),aprov:/aprovad/i.test(g(r,"st")),selo:g(r,"selo"),sp:g(r,"sp")};
   const fid=(g(r,"f").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1]||(g(r,"f2").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1];x.img=fid?"https://drive.google.com/thumbnail?id="+fid+"&sz=w200":"";
   if(!x.aprov)S.apr.push(x);
-  {const ds=data(x.selo);const rec=!ds||(hoje-ds)/864e5<=14;if(x.aprov&&!x.sp&&rec)S.sto.push(x);}
+  {const ds=data(x.selo);const rec=!ds||(hoje-ds)/864e5<=14;if(x.aprov&&!x.sp&&!PS[slug(n)]&&rec)S.sto.push(x);}
   if(!x.img)S.fot.push(x);else if(x.aprov)gal.push(x);
   if(/^sim/i.test(g(r,"logo")))S.log.push(x);
   const promo=g(r,"pv")||(nz(g(r,"tp")).match(/nao quero|nenhum/)?"":g(r,"tp"));
@@ -90,7 +91,7 @@ async function carregar(){
   fot:x=>it(x,(x.aprov?"aprovado":"esperando")+" · "+esc(x.w||"sem WhatsApp"),btn(wa(x.w,M.foto(x.n)),"Pedir foto")),
   log:x=>it(x,"marcou “Sim” no cadastro",btn(wa(x.w,M.logo(x.n)),"Combinar")),
   cup:x=>it(x,esc(x.promo)+" · "+(x.dt?("até "+fmt(x.dt)+(x.dias<=3?" · faltam "+x.dias+(x.dias===1?" dia":" dias"):"")):"sem data"),x.dt?(x.dias<=3?btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"Avisar"):btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"WhatsApp",1)):btn(wa(x.w,M.data(x.n)),"Pedir data"))};
- const DICA={apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Aprovados nos últimos 14 dias. Depois de postar, escreva a data na coluna “Story postado” da planilha e ele sai desta lista.",fot:"Negócios sem nenhuma foto nem logo no cadastro. Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Toque numa foto abaixo para oferecer o logo a quem só tem foto do rosto.",cup:"Todos os cupons que estão no site agora e até quando valem. “Avisar” aparece quando faltam 3 dias ou menos. Cupons vencidos saem do site sozinhos."};
+ const DICA={apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Aprovados nos últimos 14 dias que ainda não ganharam o story. Depois de postar, toque em “Marcar como postado” no /story e ele sai desta lista (neste aparelho).",fot:"Negócios sem nenhuma foto nem logo no cadastro. Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Toque numa foto abaixo para oferecer o logo a quem só tem foto do rosto.",cup:"Todos os cupons que estão no site agora e até quando valem. “Avisar” aparece quando faltam 3 dias ou menos. Cupons vencidos saem do site sozinhos."};
  document.getElementById("kp").innerHTML=SEC.map(([id,,c,lab])=>`<a class="k" href="#${id}" style="--c:${c}"><b>${S[id].length}</b><span>${lab}</span></a>`).join("");
  document.getElementById("secs").innerHTML=SEC.map(([id,tit,c])=>`<h2 id="${id}" style="--c:${c}"><i></i>${tit} <span class="n">${S[id].length}</span></h2><div class="sec">${S[id].length?S[id].map(R2[id]).join(""):'<div class="vz">Nada pendente ✓</div>'}${id==="log"&&gal.length?`<div class="gal">${gal.map(x=>`<a href="${wa(x.w,M.logo(x.n))||"#"}" target="_blank" rel="noopener"><span style="background-image:url('${x.img}')"></span>${esc(x.n.slice(0,14))}</a>`).join("")}</div>`:""}</div><p class="dica">${DICA[id]}</p>`).join("");
  const d=new Date();document.getElementById("upd").textContent="Atualizado às "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+" · "+(R.length-1)+" cadastros";
