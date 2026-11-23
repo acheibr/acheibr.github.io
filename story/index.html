@@ -24,7 +24,7 @@ input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #C9D3F2
 <h1>Central de stories 🎄</h1>
 <div id="busca" style="display:none;width:100%"><p style="margin:6px 0 10px">Os mais novos aparecem em cima:</p><input id="q" placeholder="Buscar pelo nome…" autocomplete="off"><div id="lista"></div></div>
 <div id="selo" style="display:none;width:100%;flex-direction:column;gap:14px;align-items:center">
-<div class="tg"><button id="tE">Estou no achei!BR</button><button id="tN" class="on">Novo negócio</button><button id="tA">Parceira</button><button id="tO">Parceiro</button></div>
+<div class="tg"><button id="tE">Estou no achei!BR</button><button id="tN" class="on">Novo negócio</button><button id="tA">Parceira</button><button id="tO">Parceiro</button><button id="tB">Black Friday 🖤</button></div>
 <div class="tg" id="fitBox" style="display:none"><button id="fIn" class="on">🖼️ Foto inteira</button><button id="fFill">🔍 Preencher</button></div><div id="oyBox" style="display:none;width:100%;align-items:center;gap:10px;font:600 14px Outfit,sans-serif;color:#4A5470">⬆️<input id="oy" type="range" min="0" max="100" value="50" style="flex:1">⬇️</div><p class="dica" id="oyDica" style="margin:-6px 0 0;display:none">Arraste para ajustar o enquadramento da foto</p><img id="out" alt="Story">
 <div class="bt"><button class="b b1" id="bShare">📲 Compartilhar</button><a class="b b2" id="bDown" download="story.png">⬇️ Baixar imagem</a></div>
 <div id="capBox" style="display:none;width:100%;flex-direction:column;gap:10px"><div class="cap" id="cap"></div><button class="b b2" id="bCap">📋 Copiar texto</button></div>
@@ -43,10 +43,10 @@ const msg=document.getElementById("msg");
 async function load(){
  const t=await fetch(PLANILHA_CSV,{cache:"no-store"}).then(r=>r.text());const rows=csv(t);const h=rows[0].map(nz);
  const col=(...k)=>{for(const a of k){const i=h.findIndex(x=>x.indexOf(a)===0);if(i>=0)return i}return -1};
- const C={wa:h.findIndex(x=>x.includes("whatsapp")),ts:h.findIndex(x=>/carimbo|timestamp|data\/hora/.test(x)),ig:h.findIndex(x=>x.includes("instagram")),n:col("nome do negocio"),st:col("status"),au:col("autoriz"),lg:col("logo da marca","foto ou logo","logo ou foto","foto"),cat:col("area do seu","categoria"),pl:col("plano")};
+ const C={wa:h.findIndex(x=>x.includes("whatsapp")),ts:h.findIndex(x=>/carimbo|timestamp|data\/hora/.test(x)),ig:h.findIndex(x=>x.includes("instagram")),n:col("nome do negocio"),st:col("status"),au:col("autoriz"),lg:col("logo da marca","foto ou logo","logo ou foto","foto"),cat:col("area do seu","categoria"),pl:col("plano"),f2:col("mais fotos"),tp:col("escolha a promocao"),pv:col("valor da promocao"),pc:col("condicoes da promocao"),camp:col("campanha"),esp:col("essa promocao")};const _last=k=>{let r=-1;h.forEach((x,i)=>{if(x.indexOf(k)===0)r=i});return r};C.ate=_last("promocao valida");
  const seen={};
  for(const r of rows.slice(1)){const n=(r[C.n]||"").trim();if(!n)continue;if(C.st>=0&&!/aprovad/i.test(r[C.st]||""))continue;if(seen[nz(n)])continue;seen[nz(n)]=1;
-  const id=((r[C.lg]||"").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1]||"";const pv=C.pl>=0?(r[C.pl]||""):"";const igv=C.ig>=0?(r[C.ig]||"").trim():"";const h2=(igv.match(/instagram\.com\/([\w.]+)/i)||[])[1]||igv.replace(/^@/,"").replace(/\s+/g,"");BIZ.push({n,ts:C.ts>=0?(()=>{const d=(r[C.ts]||"").split(" ")[0].split("/");return d.length==3?(d[1].padStart(2,"0")+"/"+d[0].padStart(2,"0")+"/"+d[2]):""})():"",s:slug(n),id,ig:h2,wa:C.wa>=0?(r[C.wa]||"").replace(/\D/g,""):"",plano:/empresa|business/i.test(pv)?"business":/achei\+|premium/i.test(pv)?"premium":"basico"})}
+  const id=((r[C.lg]||"").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1]||((C.f2>=0?r[C.f2]:"")||"").match(/(?:id=|\/d\/)([\w-]{20,})/)?.[1]||"";const gg=k=>C[k]>=0?(r[C[k]]||"").trim():"";const tpn=nz(gg("tp")),pvv=gg("pv"),pct=(pvv.match(/(\d{1,2})/)||[])[1];const bfp=/black/i.test(gg("camp")+" "+gg("esp"));const pro=/nao quero|nenhum/.test(tpn)?null:/grat|primeir/.test(tpn)?{big:"Grátis",pill:"1º ATENDIMENTO"}:/brinde/.test(tpn)?{big:"Brinde",pill:"ESPECIAL"}:(/desconto|%/.test(tpn)&&pct)?{big:pct+"%",pill:"DE DESCONTO"}:(/bonus|euro|€/.test(tpn)&&pct)?{big:"€"+pct,pill:"DE BÔNUS"}:null;const pv=C.pl>=0?(r[C.pl]||""):"";const igv=C.ig>=0?(r[C.ig]||"").trim():"";const h2=(igv.match(/instagram\.com\/([\w.]+)/i)||[])[1]||igv.replace(/^@/,"").replace(/\s+/g,"");BIZ.push({bf:bfp&&!!pro,pro,cond:gg("pc"),ate:gg("ate"),n,ts:C.ts>=0?(()=>{const d=(r[C.ts]||"").split(" ")[0].split("/");return d.length==3?(d[1].padStart(2,"0")+"/"+d[0].padStart(2,"0")+"/"+d[2]):""})():"",s:slug(n),id,ig:h2,wa:C.wa>=0?(r[C.wa]||"").replace(/\D/g,""):"",plano:/empresa|business/i.test(pv)?"business":/achei\+|premium/i.test(pv)?"premium":"basico"})}
 }
 
 function img(src){return new Promise((res,rej)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=rej;i.src=src})}
@@ -60,7 +60,29 @@ function upCap(){const at=cur.ig?"@"+cur.ig:cur.n;const box=document.getElementB
  if(modo=="e"){c.textContent="Agora estou no achei!BR 🇧🇷💛\nO guia de produtos e serviços brasileiros em Barcelona.\n\nMe encontre em acheibr.es\nSiga @acheibr.es";box.style.display="flex"}else{c.textContent="Bem-vindo(a) ao achei!BR, "+at+"! 💛\nConheça este e outros negócios brasileiros em Barcelona: acheibr.es";box.style.display="flex"}
  const w=document.getElementById("bWa");if(cur.wa){const link="https://acheibr.es/story/?n="+cur.s+"&m=e";w.href="https://wa.me/"+cur.wa+"?text="+encodeURIComponent("Olá! 🎉 Seu negócio já está no ar no achei!BR. Preparamos um story especial para você compartilhar nos seus stories e marcar @acheibr.es 💛\n\n👉 "+link);w.style.display="flex"}else w.style.display="none"}
 document.addEventListener("click",e=>{if(e.target&&e.target.id=="bCap"){navigator.clipboard.writeText(document.getElementById("cap").textContent).then(()=>{e.target.textContent="✅ Texto copiado"})}});
-function draw(){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
+
+
+function wrapL(x,t,max){const w=(t||"").split(" ");const L=[];let l="";for(const p of w){const tt=l?l+" "+p:p;if(x.measureText(tt).width>max&&l){L.push(l);l=p}else l=tt}if(l)L.push(l);return L}
+function fmtD(s){const m=(s||"").match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!m)return "";const M=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];let a=+m[1],b=+m[2];if(b>12){const t=a;a=b;b=t}return a+" de "+M[b-1]}
+function drawBF(){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0B1633");g.addColorStop(1,"#14213D");x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.strokeStyle="#C9A24A";x.lineWidth=3;x.strokeRect(46,46,W-92,H-92);x.lineWidth=1;x.strokeRect(60,60,W-120,H-120);
+ const P=cur.pro||{big:"",pill:""};
+ x.textAlign="center";x.fillStyle="#E6C67F";x.font="600 30px Outfit, Arial";try{x.letterSpacing="10px"}catch(e){}x.fillText("ACHEI!BR APRESENTA",W/2+5,190);try{x.letterSpacing="0px"}catch(e){}
+ x.save();x.shadowColor="rgba(255,217,94,.85)";x.shadowBlur=40;x.fillStyle="#FFFFFF";x.font="italic 500 132px Fraunces, Georgia, serif";x.fillText("Black Friday",W/2,345);x.restore();
+ x.save();x.shadowColor="rgba(255,217,94,.7)";x.shadowBlur=50;x.fillStyle="#FFD95E";let fs=P.big.length>4?190:300;x.font="500 "+fs+"px Fraunces, Georgia, serif";while(x.measureText(P.big).width>860&&fs>90){fs-=10;x.font="500 "+fs+"px Fraunces, Georgia, serif"}x.fillText(P.big,W/2,P.big.length>4?620:660);x.restore();
+ x.font="700 36px Outfit, Arial";try{x.letterSpacing="6px"}catch(e){}const pw=x.measureText(P.pill).width+90;x.fillStyle="#FFD95E";rr(x,(W-pw)/2,712,pw,78,39);x.fill();x.fillStyle="#0B1633";x.fillText(P.pill,W/2+3,764);try{x.letterSpacing="0px"}catch(e){}
+ const cy=1040,R=190;x.save();x.shadowColor="rgba(0,0,0,.45)";x.shadowBlur=40;x.fillStyle="#fff";x.beginPath();x.arc(W/2,cy,R,0,7);x.fill();x.restore();
+ x.save();x.beginPath();x.arc(W/2,cy,R-6,0,7);x.clip();if(LB){const k=Math.max((2*R)/LB.width,(2*R)/LB.height);x.drawImage(LB,W/2-LB.width*k/2,cy-LB.height*k/2,LB.width*k,LB.height*k)}else{x.fillStyle="#2246C6";x.fillRect(W/2-R,cy-R,2*R,2*R);x.fillStyle="#fff";x.font="500 170px Fraunces, Georgia, serif";x.fillText((cur.n||"?")[0].toUpperCase(),W/2,cy+60)}x.restore();
+ x.strokeStyle="#C9A24A";x.lineWidth=6;x.beginPath();x.arc(W/2,cy,R+4,0,7);x.stroke();
+ x.fillStyle="#FFFFFF";let h=cur.ig?"@"+cur.ig:cur.n;let f2=54;x.font="600 "+f2+"px Outfit, Arial";while(x.measureText(h).width>860&&f2>30){f2-=2;x.font="600 "+f2+"px Outfit, Arial"}x.fillText(h,W/2,1325);
+ x.fillStyle="#DCE5FB";x.font="400 38px Outfit, Arial";let yy=1395;for(const l of wrapL(x,cur.cond,860).slice(0,2)){x.fillText(l,W/2,yy);yy+=50}
+ const d=fmtD(cur.ate)||"27 de novembro";x.fillStyle="#FFD95E";x.font="italic 500 54px Fraunces, Georgia, serif";x.fillText("Válido até "+d+"!",W/2,1680);
+ if(LN){const lw=300,lh=lw*LN.height/LN.width;x.drawImage(LN,(W-lw)/2,1720,lw,lh)}else{x.fillStyle="#E6C67F";x.font="600 40px Outfit, Arial";x.fillText("acheibr.es",W/2,1790)}
+ const c=document.getElementById("cap"),box=document.getElementById("capBox");if(c&&box){c.textContent="🖤 Black Friday no achei!BR 🖤\n"+(cur.ig?"@"+cur.ig:cur.n)+": "+P.big+" "+P.pill.toLowerCase()+(cur.cond?" ("+cur.cond+")":"")+"\nVálido até "+d+"!\nVeja todos os cupons em acheibr.es";box.style.display="flex"}
+ const url=cv.toDataURL("image/png");document.getElementById("out").src=url;const a=document.getElementById("bDown");a.href=url;a.download="black-friday-"+cur.s+".png";window._cv=cv}
+
+function draw(){if(modo==="bf")return drawBF();const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
  x.fillStyle="#2346C6";x.fillRect(0,0,W,H);
  let sd=7;const rnd=()=>{sd=(sd*9301+49297)%233280;return sd/233280};
  for(let i=0;i<80;i++){x.globalAlpha=.3+rnd()*.5;x.fillStyle="#fff";x.beginPath();x.arc(rnd()*W,rnd()*H,1.5+rnd()*4,0,7);x.fill()}x.globalAlpha=1;
@@ -87,14 +109,15 @@ async function show(b){cur=b;document.getElementById("busca").style.display="non
  upd();try{await Promise.all(["600 88px Fraunces","italic 600 88px Fraunces","700 44px Outfit"].map(f=>document.fonts.load(f)))}catch(e){}draw()}
 function upd(){const b=document.getElementById("bPost");const p=getP()[cur.s];b.textContent=p?"↩️ Desmarcar (ainda não postei)":"✅ Marcar como postado"}
 document.getElementById("bPost").onclick=()=>{setP(cur.s,!getP()[cur.s]);upd()};
-const tg={tE:"e",tN:"n",tA:"a",tO:"o"};Object.keys(tg).forEach(k=>{document.getElementById(k).onclick=()=>{modo=tg[k];Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",j==k));draw()}});
+const tg={tE:"e",tN:"n",tA:"a",tO:"o",tB:"bf"};Object.keys(tg).forEach(k=>{document.getElementById(k).onclick=()=>{modo=tg[k];Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",j==k));draw()}});
 document.getElementById("bShare").onclick=()=>{window._cv.toBlob(async bl=>{const f=new File([bl],"story-acheibr.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(e){}}else document.getElementById("bDown").click()})};
 const PK="ab_story_postado";const getP=()=>{try{return JSON.parse(localStorage.getItem(PK)||"{}")}catch(e){return {}}};const setP=(k,v)=>{try{const o=getP();if(v)o[k]=1;else delete o[k];localStorage.setItem(PK,JSON.stringify(o))}catch(e){}};
-function busca(){document.getElementById("busca").style.display="block";msg.textContent="";const q=document.getElementById("q"),l=document.getElementById("lista");
- const r=()=>{const v=nz(q.value);const P=getP();l.innerHTML="";const L=BIZ.slice().reverse().filter(b=>!v||nz(b.n).includes(v));
+function busca(){if(SOBF){const p=document.querySelector("#busca p");if(p)p.innerHTML="<b>Black Friday 🖤</b> · negócios participando:"}document.getElementById("busca").style.display="block";msg.textContent="";const q=document.getElementById("q"),l=document.getElementById("lista");
+ const r=()=>{const v=nz(q.value);const P=getP();l.innerHTML="";const L=BIZ.slice().reverse().filter(b=>(!SOBF||b.bf)&&(!v||nz(b.n).includes(v)));
   const mk=(t)=>{const d=document.createElement("div");d.style.cssText="font-weight:700;font-size:13px;letter-spacing:.12em;color:#4A5470;margin:14px 0 6px;text-align:left";d.textContent=t;l.appendChild(d)};
-  const it=b=>{const a=document.createElement("a");a.href="?n="+b.s;a.innerHTML=(P[b.s]?"✅ ":"🆕 ")+b.n+(b.ts?' <span style="font-weight:400;color:#8A93AB;font-size:13px">· '+b.ts+'</span>':"");a.onclick=e=>{e.preventDefault();show(b)};l.appendChild(a)};
+  const it=b=>{const a=document.createElement("a");a.href="?n="+b.s+(SOBF?"&m=bf":"");a.innerHTML=(P[b.s]?"✅ ":"🆕 ")+b.n+(b.ts?' <span style="font-weight:400;color:#8A93AB;font-size:13px">· '+b.ts+'</span>':"");a.onclick=e=>{e.preventDefault();show(b)};l.appendChild(a)};
   const novos=L.filter(b=>!P[b.s]),feitos=L.filter(b=>P[b.s]);if(novos.length){mk("PARA POSTAR ("+novos.length+")");novos.forEach(it)}if(feitos.length){mk("JÁ POSTADOS ("+feitos.length+")");feitos.forEach(it)}};q.oninput=r;r()}
+const SOBF=new URLSearchParams(location.search).get("c")==="bf"||new URLSearchParams(location.search).get("m")==="bf";if(new URLSearchParams(location.search).get("m")==="bf")modo="bf";
 (async()=>{if(new URLSearchParams(location.search).get("m")=="e"){modo="e";document.documentElement.classList.add("cli");setTimeout(()=>{Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",tg[j]=="e"))},0)}try{await load()}catch(e){msg.textContent="Não consegui carregar os cadastros agora.";return}
  const n=slug(new URLSearchParams(location.search).get("n")||"");const b=n&&(BIZ.find(b=>b.s===n)||BIZ.find(b=>b.s.includes(n)));if(b)show(b);else busca()})();
 </script></body></html>
