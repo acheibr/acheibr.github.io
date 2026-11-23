@@ -9,7 +9,7 @@
 *{box-sizing:border-box;margin:0}body{background:#070B16;color:#EDEFF5;font-family:Inter,Arial,sans-serif;min-height:100vh}
 .w{max-width:560px;margin:0 auto;padding:26px 18px 50px}
 h1{font-family:Fraunces,Georgia,serif;font-weight:300;font-size:32px;color:#fff}.sub{color:#8590AA;font-size:13px;margin-top:6px}
-.kp{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:22px 0 4px}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0 4px}
 .k{display:block;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px 4px 10px;text-align:center;border-top:3px solid var(--c)}
 .k b{font-family:Fraunces,serif;font-weight:300;font-size:28px;display:block;color:var(--c)}.k span{font-size:10.5px;color:#8590AA;line-height:1.25;display:block;margin-top:4px}
 h2{font-family:Fraunces,serif;font-weight:300;font-size:20px;margin:30px 0 8px;display:flex;align-items:center;gap:10px;color:#fff;scroll-margin-top:14px}
@@ -59,7 +59,8 @@ const M={
  logo:n=>`Oi! Aqui é a Paola, do achei!BR 💛 Vi que o ${n} ainda não tem um logo. Quer que eu crie um para você? Logo simples por 5,30 €: 3 opções + 1 ajuste ✨ Fica lindo no site, no Instagram e no story de boas-vindas!`,
  data:n=>`Oi! Aqui é a Paola, do achei!BR 💛 Sobre a promoção do ${n} no site: até quando ela vale? Me manda a data, que eu atualizo 😊`,
  aviso:(n,d)=>`Oi! Aqui é a Paola, do achei!BR 💛 A promoção do ${n} no site vale até ${d}. Quer estender a data ou criar uma nova promoção? 😊`};
-const SEC=[["apr","Esperando aprovação","#FFD95E","esperando<br>aprovação"],["sto","Story de boas-vindas pendente","#8FB0FF","stories<br>pendentes"],["fot","Sem foto","#FF9B9B","sem<br>foto"],["log","Oferecer logo 5,30 €","#4ADE80","oferecer<br>logo"],["cup","Cupons e validade","#E6C67F","cupons<br>ativos"]];
+const SEC=[["bf","Black Friday · para postar hoje","#FFFFFF","Black Friday<br>para postar"],["apr","Esperando aprovação","#FFD95E","esperando<br>aprovação"],["sto","Story de boas-vindas pendente","#8FB0FF","stories<br>pendentes"],["fot","Sem foto","#FF9B9B","sem<br>foto"],["log","Oferecer logo 5,30 €","#4ADE80","oferecer<br>logo"],["cup","Cupons e validade","#E6C67F","cupons<br>ativos"]];
+function marcarBF(s,el){try{const o=JSON.parse(localStorage.getItem("ab_bf_postado")||"{}");o[s+"|"+new Date().toISOString().slice(0,10)]=1;localStorage.setItem("ab_bf_postado",JSON.stringify(o))}catch(e){}const it=el.closest(".it");if(it)it.remove();const h=document.getElementById("bf");if(h){const n=h.querySelector(".n");if(n)n.textContent=Math.max(0,+n.textContent-1)}const k=document.querySelector('.k[href="#bf"] b');if(k)k.textContent=Math.max(0,+k.textContent-1)}
 function marcar(s,el){try{const o=JSON.parse(localStorage.getItem("ab_story_postado")||"{}");o[s]=1;localStorage.setItem("ab_story_postado",JSON.stringify(o))}catch(e){}const it=el.closest(".it");if(it)it.remove();const h=document.getElementById("sto");if(h){const n=h.querySelector(".n");if(n)n.textContent=Math.max(0,+n.textContent-1)}const k=document.querySelector('.k[href="#sto"] b');if(k)k.textContent=Math.max(0,+k.textContent-1)}
 async function carregar(){
  let t;try{t=await fetch(CSV+"&t="+Date.now(),{cache:"no-store"}).then(r=>r.text())}catch(e){document.getElementById("upd").textContent="Não consegui ler a planilha. Toque em Atualizar.";return}
@@ -69,7 +70,9 @@ async function carregar(){
  const g=(r,k)=>C[k]>=0?(r[C[k]]||"").trim():"";
  const hoje=new Date();hoje.setHours(0,0,0,0);
  let PS={};try{PS=JSON.parse(localStorage.getItem("ab_story_postado")||"{}")}catch(e){}
- const S={apr:[],sto:[],fot:[],log:[],cup:[]},gal=[];const vistos={};
+ let PB={};try{PB=JSON.parse(localStorage.getItem("ab_bf_postado")||"{}")}catch(e){}
+ const HJ=new Date().toISOString().slice(0,10);
+ const S={bf:[],apr:[],sto:[],fot:[],log:[],cup:[]},gal=[];const vistos={};
  R.slice(1).forEach((r,ix)=>{const n=g(r,"n");if(!n)return;const row=ix+2;const k=nz(n);if(vistos[k])return;vistos[k]=1;
   const x={n,row,d:g(r,"d"),w:g(r,"w"),ig:g(r,"ig"),pl:g(r,"pl"),aprov:/aprovad/i.test(g(r,"st")),selo:g(r,"selo"),sp:g(r,"sp")};
   const fid=(g(r,"f").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1]||(g(r,"f2").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1];x.img=fid?"https://drive.google.com/thumbnail?id="+fid+"&sz=w200":"";
@@ -79,7 +82,7 @@ async function carregar(){
   if(/^sim/i.test(g(r,"logo")))S.log.push(x);
   const promo=g(r,"pv")||(nz(g(r,"tp")).match(/nao quero|nenhum/)?"":g(r,"tp"));
   if(x.aprov&&promo){const dt=data(g(r,"ate2")||g(r,"ate1"));const bf=/black/i.test(g(r,"camp")+" "+g(r,"esp"));
-   if(!dt||dt>=hoje){x.promo=promo;x.bf=bf;x.dt=dt;x.dias=dt?Math.round((dt-hoje)/864e5):null;S.cup.push(x)}}
+   if(!dt||dt>=hoje){x.promo=promo;x.bf=bf;x.dt=dt;x.dias=dt?Math.round((dt-hoje)/864e5):null;S.cup.push(x);if(bf&&!PB[slug(n)+"|"+HJ])S.bf.push(x)}}
  });
  S.sto.sort((a,b)=>b.row-a.row);
  S.cup.sort((a,b)=>(a.dias??999)-(b.dias??999));
@@ -89,11 +92,12 @@ async function carregar(){
  const fmt=d=>String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
  const R2={
   apr:x=>it(x,esc(x.pl||"sem plano")+(x.ig?" · "+esc(x.ig):""),btn(SHEET+x.row,"Planilha")),
+  bf:x=>it(x,esc(x.promo)+(x.dt?" · até "+fmt(x.dt):"")+(x.ig?" · "+esc(x.ig):""),(x.ig?btn("https://instagram.com/"+x.ig.replace(/^@/,"").replace(/.*instagram\.com\//,"").replace(/[/?].*$/,""),"Instagram",1):"")+`<button class="b" style="margin-left:6px;cursor:pointer;border:0;font:600 12px Inter,sans-serif" title="Já postei hoje" onclick="marcarBF('${slug(x.n)}',this)">✓ Postei</button>`),
   sto:x=>it(x,esc(x.ig||x.d||""),btn("/story/?n="+slug(x.n),"Fazer story")+`<button class="b o" style="margin-left:6px;cursor:pointer;font:600 12px Inter,sans-serif" title="Já postei" onclick="marcar('${slug(x.n)}',this)">✓</button>`),
   fot:x=>it(x,(x.aprov?"aprovado":"esperando")+" · "+esc(x.w||"sem WhatsApp"),btn(wa(x.w,M.foto(x.n)),"Pedir foto")),
   log:x=>it(x,"marcou “Sim” no cadastro",btn(wa(x.w,M.logo(x.n)),"Combinar")),
   cup:x=>it(x,esc(x.promo)+" · "+(x.dt?("até "+fmt(x.dt)+(x.dias<=3?" · faltam "+x.dias+(x.dias===1?" dia":" dias"):"")):"sem data"),x.dt?(x.dias<=3?btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"Avisar"):btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"WhatsApp",1)):btn(wa(x.w,M.data(x.n)),"Pedir data"))};
- const DICA={apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Os mais novos em cima. Depois de postar, toque em “Marcar como postado” no /story ou no ✓ aqui, e ele sai da lista. Se alguém já ganhou o story antes, é só tocar no ✓.",fot:"Negócios sem nenhuma foto nem logo no cadastro. Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Toque numa foto abaixo para oferecer o logo a quem só tem foto do rosto.",cup:"Todos os cupons que estão no site agora e até quando valem. “Avisar” aparece quando faltam 3 dias ou menos. Cupons vencidos saem do site sozinhos."};
+ const DICA={bf:"Todos que estão na Black Friday. Poste a promoção nos stories (quarta e sexta) e toque em “✓ Postei”: some só por hoje e volta no próximo dia.",apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Os mais novos em cima. Depois de postar, toque em “Marcar como postado” no /story ou no ✓ aqui, e ele sai da lista. Se alguém já ganhou o story antes, é só tocar no ✓.",fot:"Negócios sem nenhuma foto nem logo no cadastro. Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Toque numa foto abaixo para oferecer o logo a quem só tem foto do rosto.",cup:"Todos os cupons que estão no site agora e até quando valem. “Avisar” aparece quando faltam 3 dias ou menos. Cupons vencidos saem do site sozinhos."};
  document.getElementById("kp").innerHTML=SEC.map(([id,,c,lab])=>`<a class="k" href="#${id}" style="--c:${c}"><b>${S[id].length}</b><span>${lab}</span></a>`).join("");
  document.getElementById("secs").innerHTML=SEC.map(([id,tit,c])=>`<h2 id="${id}" style="--c:${c}"><i></i>${tit} <span class="n">${S[id].length}</span></h2><div class="sec">${S[id].length?S[id].map(R2[id]).join(""):'<div class="vz">Nada pendente ✓</div>'}${id==="log"&&gal.length?`<div class="gal">${gal.map(x=>`<a href="${wa(x.w,M.logo(x.n))||"#"}" target="_blank" rel="noopener"><span style="background-image:url('${x.img}')"></span>${esc(x.n.slice(0,14))}</a>`).join("")}</div>`:""}</div><p class="dica">${DICA[id]}</p>`).join("");
  const d=new Date();document.getElementById("upd").textContent="Atualizado às "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+" · "+(R.length-1)+" cadastros";
