@@ -61,6 +61,7 @@ const M={
  aviso:(n,d)=>`Oi! Aqui é a Paola, do achei!BR 💛 Tudo bem?\nPassando para avisar que a promoção do ${n} no site vale até ${d}. Quer estender a data ou criar uma nova promoção? Estou à disposição! 😊`};
 const SEC=[["bf","Black Friday · para postar hoje","#FFFFFF","Black Friday<br>para postar"],["apr","Esperando aprovação","#FFD95E","esperando<br>aprovação"],["sto","Story de boas-vindas pendente","#8FB0FF","stories<br>pendentes"],["fot","Sem foto","#FF9B9B","sem<br>foto"],["log","Oferecer logo 5,30 €","#4ADE80","oferecer<br>logo"],["cup","Cupons e validade","#E6C67F","cupons<br>ativos"]];
 function marcarBF(s,el){try{const o=JSON.parse(localStorage.getItem("ab_bf_postado")||"{}");o[s+"|"+new Date().toISOString().slice(0,10)]=1;localStorage.setItem("ab_bf_postado",JSON.stringify(o))}catch(e){}const it=el.closest(".it");if(it)it.remove();const h=document.getElementById("bf");if(h){const n=h.querySelector(".n");if(n)n.textContent=Math.max(0,+n.textContent-1)}const k=document.querySelector('.k[href="#bf"] b');if(k)k.textContent=Math.max(0,+k.textContent-1)}
+function enviei(k,el,rem){try{const o=JSON.parse(localStorage.getItem("ab_enviado")||"{}");o[k]=1;localStorage.setItem("ab_enviado",JSON.stringify(o))}catch(e){}if(rem){const it=el.closest(".it,.gal a");if(it)it.remove()}else{el.textContent="Enviado ✓";el.disabled=true;el.style.opacity=".6";const p=el.previousElementSibling;if(p&&p.classList.contains("b"))p.remove()}}
 function marcar(s,el){try{const o=JSON.parse(localStorage.getItem("ab_story_postado")||"{}");o[s]=1;localStorage.setItem("ab_story_postado",JSON.stringify(o))}catch(e){}const it=el.closest(".it");if(it)it.remove();const h=document.getElementById("sto");if(h){const n=h.querySelector(".n");if(n)n.textContent=Math.max(0,+n.textContent-1)}const k=document.querySelector('.k[href="#sto"] b');if(k)k.textContent=Math.max(0,+k.textContent-1)}
 async function carregar(){
  let t;try{t=await fetch(CSV+"&t="+Date.now(),{cache:"no-store"}).then(r=>r.text())}catch(e){document.getElementById("upd").textContent="Não consegui ler a planilha. Toque em Atualizar.";return}
@@ -72,14 +73,15 @@ async function carregar(){
  let PS={};try{PS=JSON.parse(localStorage.getItem("ab_story_postado")||"{}")}catch(e){}
  let PB={};try{PB=JSON.parse(localStorage.getItem("ab_bf_postado")||"{}")}catch(e){}
  const HJ=new Date().toISOString().slice(0,10);
+ let EV={};try{EV=JSON.parse(localStorage.getItem("ab_enviado")||"{}")}catch(e){}
  const S={bf:[],apr:[],sto:[],fot:[],log:[],cup:[]},gal=[];const vistos={};
  R.slice(1).forEach((r,ix)=>{const n=g(r,"n");if(!n)return;const row=ix+2;const k=nz(n);if(vistos[k])return;vistos[k]=1;
   const x={n,row,d:g(r,"d"),w:g(r,"w"),ig:g(r,"ig"),pl:g(r,"pl"),aprov:/aprovad/i.test(g(r,"st")),selo:g(r,"selo"),sp:g(r,"sp")};
   const fid=(g(r,"f").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1]||(g(r,"f2").match(/(?:id=|\/d\/)([\w-]{20,})/)||[])[1];x.img=fid?"https://drive.google.com/thumbnail?id="+fid+"&sz=w200":"";
   if(!x.aprov)S.apr.push(x);
   {const ds=data(x.selo);const rec=!ds||(hoje-ds)/864e5<=14;if(x.aprov&&!x.sp&&!PS[slug(n)]&&rec)S.sto.push(x);}
-  if(!x.img)S.fot.push(x);else if(x.aprov)gal.push(x);
-  if(/^sim/i.test(g(r,"logo")))S.log.push(x);
+  if(!x.img){if(!EV["fot|"+slug(n)])S.fot.push(x)}else if(x.aprov&&!EV["log|"+slug(n)])gal.push(x);
+  if(/^sim/i.test(g(r,"logo"))&&!EV["log|"+slug(n)])S.log.push(x);
   const tpn=nz(g(r,"tp")),pvv=g(r,"pv"),pct=(pvv.match(/(\d{1,2})/)||[])[1];const promo=/nao quero|nenhum/.test(tpn)?"":/grat|primeir/.test(tpn)?"1º atendimento grátis":/brinde/.test(tpn)?"Brinde":(/desconto|%/.test(tpn)&&pct)?pct+"% de desconto":(/bonus|euro|€/.test(tpn)&&pct)?"€"+pct+" de bônus":(pvv||g(r,"tp"));
   if(x.aprov&&promo){const dt=data(g(r,"ate2")||g(r,"ate1"));const bf=/black/i.test(g(r,"camp")+" "+g(r,"esp"));
    if(!dt||dt>=hoje){x.promo=promo;x.bf=bf;x.dt=dt;x.dias=dt?Math.round((dt-hoje)/864e5):null;S.cup.push(x);if(bf&&!PB[slug(n)+"|"+HJ])S.bf.push(x)}}
@@ -89,17 +91,18 @@ async function carregar(){
  const av=x=>`<span class="av"${x.img?` style="background-image:url('${x.img}')"`:""}>${x.img?"":esc(x.n.trim()[0].toUpperCase())}</span>`;
  const btn=(href,txt,o)=>href?`<a class="b${o?" o":""}" href="${href}" target="_blank" rel="noopener">${txt}</a>`:`<span class="b o" style="opacity:.5">conferir nº</span>`;
  const it=(x,sub,b)=>`<div class="it">${av(x)}<div class="tx"><b>${esc(x.n)}${x.bf?'<span class="t">Black Friday</span>':""}</b><small>${sub}</small></div>${b}</div>`;
+ const ok=(k,rem)=>`<button class="b o" style="margin-left:6px;cursor:pointer;font:600 12px Inter,sans-serif;color:#fff" title="Já enviei" onclick="enviei('${k}',this,${rem?1:0})">✓</button>`;
  const fmt=d=>String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
  const R2={
   apr:x=>it(x,esc(x.pl||"sem plano")+(x.ig?" · "+esc(x.ig):""),btn(SHEET+x.row,"Planilha")),
   bf:x=>it(x,esc(x.promo)+(x.dt?" · até "+fmt(x.dt):"")+(x.ig?" · "+esc(x.ig):""),(x.ig?btn("https://instagram.com/"+x.ig.replace(/^@/,"").replace(/.*instagram\.com\//,"").replace(/[/?].*$/,""),"Instagram",1):"")+`<button class="b" style="margin-left:6px;cursor:pointer;border:0;font:600 12px Inter,sans-serif" title="Já postei hoje" onclick="marcarBF('${slug(x.n)}',this)">✓ Postei</button>`),
   sto:x=>it(x,esc(x.ig||x.d||""),btn("/story/?n="+slug(x.n),"Fazer story")+`<button class="b o" style="margin-left:6px;cursor:pointer;font:600 12px Inter,sans-serif" title="Já postei" onclick="marcar('${slug(x.n)}',this)">✓</button>`),
-  fot:x=>it(x,(x.aprov?"aprovado":"esperando")+" · "+esc(x.w||"sem WhatsApp"),btn(wa(x.w,M.foto(x.n)),"Pedir foto")),
-  log:x=>it(x,"marcou “Sim” no cadastro",btn(wa(x.w,M.logo(x.n)),"Combinar")),
-  cup:x=>it(x,esc(x.promo)+" · "+(x.dt?("até "+fmt(x.dt)+(x.dias<=3?" · faltam "+x.dias+(x.dias===1?" dia":" dias"):"")):"sem data"),x.dt?(x.dias<=3?btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"Avisar"):btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"WhatsApp",1)):btn(wa(x.w,M.data(x.n)),"Pedir data"))};
- const DICA={bf:"Todos que estão na Black Friday. Poste a promoção nos stories (quarta e sexta) e toque em “✓ Postei”: some só por hoje e volta no próximo dia.",apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Os mais novos em cima. Depois de postar, toque em “Marcar como postado” no /story ou no ✓ aqui, e ele sai da lista. Se alguém já ganhou o story antes, é só tocar no ✓.",fot:"Negócios sem nenhuma foto nem logo no cadastro. Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Toque numa foto abaixo para oferecer o logo a quem só tem foto do rosto.",cup:"Todos os cupons que estão no site agora e até quando valem. “Avisar” aparece quando faltam 3 dias ou menos. Cupons vencidos saem do site sozinhos."};
+  fot:x=>it(x,(x.aprov?"aprovado":"esperando")+" · "+esc(x.w||"sem WhatsApp"),btn(wa(x.w,M.foto(x.n)),"Pedir foto")+ok("fot|"+slug(x.n),1)),
+  log:x=>it(x,"marcou “Sim” no cadastro",btn(wa(x.w,M.logo(x.n)),"Combinar")+ok("log|"+slug(x.n),1)),
+  cup:x=>it(x,esc(x.promo)+" · "+(x.dt?("até "+fmt(x.dt)+(x.dias<=3?" · faltam "+x.dias+(x.dias===1?" dia":" dias"):"")):"sem data"),(EV["cup|"+slug(x.n)+"|"+(x.dt?fmt(x.dt):"")]?`<span class="b o" style="opacity:.6">Enviado ✓</span>`:(x.dt?(x.dias<=3?btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"Avisar")+ok("cup|"+slug(x.n)+"|"+fmt(x.dt)):btn(wa(x.w,M.aviso(x.n,fmt(x.dt))),"WhatsApp",1)):btn(wa(x.w,M.data(x.n)),"Pedir data")+ok("cup|"+slug(x.n)+"|"))))};
+ const DICA={bf:"Todos que estão na Black Friday. Poste a promoção nos stories (quarta e sexta) e toque em “✓ Postei”: some só por hoje e volta no próximo dia.",apr:"Para aprovar, escreva “aprovado” na coluna Status da planilha.",sto:"Os mais novos em cima. Depois de postar, toque em “Marcar como postado” no /story ou no ✓ aqui, e ele sai da lista. Se alguém já ganhou o story antes, é só tocar no ✓.",fot:"Negócios sem nenhuma foto nem logo. Depois de mandar a mensagem, toque no ✓ e ele sai da lista. Quando a foto chegar, cole o link do Drive na coluna “Logo ou foto principal”.",log:"Em cima: quem pediu o logo no cadastro. Embaixo: as fotos de todos os negócios. Toque na foto de quem não tem logo (foto do rosto, foto de produto) para oferecer o logo de 5,30 €; depois de tocar, ela sai da lista.",cup:"Todos os cupons que estão no site agora e até quando valem. “Avisar” aparece quando faltam 3 dias ou menos. Cupons vencidos saem do site sozinhos."};
  document.getElementById("kp").innerHTML=SEC.map(([id,,c,lab])=>`<a class="k" href="#${id}" style="--c:${c}"><b>${S[id].length}</b><span>${lab}</span></a>`).join("");
- document.getElementById("secs").innerHTML=SEC.map(([id,tit,c])=>`<h2 id="${id}" style="--c:${c}"><i></i>${tit} <span class="n">${S[id].length}</span></h2><div class="sec">${S[id].length?S[id].map(R2[id]).join(""):'<div class="vz">Nada pendente ✓</div>'}${id==="log"&&gal.length?`<div class="gal">${gal.map(x=>`<a href="${wa(x.w,M.logo(x.n))||"#"}" target="_blank" rel="noopener"><span style="background-image:url('${x.img}')"></span>${esc(x.n.slice(0,14))}</a>`).join("")}</div>`:""}</div><p class="dica">${DICA[id]}</p>`).join("");
+ document.getElementById("secs").innerHTML=SEC.map(([id,tit,c])=>`<h2 id="${id}" style="--c:${c}"><i></i>${tit} <span class="n">${S[id].length}</span></h2><div class="sec">${S[id].length?S[id].map(R2[id]).join(""):'<div class="vz">Nada pendente ✓</div>'}${id==="log"&&gal.length?`<div class="gal">${gal.map(x=>`<a href="${wa(x.w,M.logo(x.n))||"#"}" target="_blank" rel="noopener" onclick="enviei('log|${slug(x.n)}',this,1)"><span style="background-image:url('${x.img}')"></span>${esc(x.n.slice(0,14))}</a>`).join("")}</div>`:""}</div><p class="dica">${DICA[id]}</p>`).join("");
  const d=new Date();document.getElementById("upd").textContent="Atualizado às "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+" · "+(R.length-1)+" cadastros";
 }
 </script>
