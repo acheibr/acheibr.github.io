@@ -107,9 +107,10 @@ async function show(b){cur=b;document.getElementById("busca").style.display="non
  if(!LN){try{LN=await img("logo-natal.png")}catch(e){}}if(!IC){try{IC=await img("icones.png")}catch(e){}}
  OY=0.5;LB=null;if(b.id){try{LB=await img("https://lh3.googleusercontent.com/d/"+b.id+"=w1200")}catch(e){LB=null}if(LB&&LB.height>LB.width*1.05)OY=0.12;const sl=document.getElementById("oy");if(sl)sl.value=Math.round(OY*100)}FIT="in";fitUI();
  upd();try{await Promise.all(["600 88px Fraunces","italic 600 88px Fraunces","700 44px Outfit"].map(f=>document.fonts.load(f)))}catch(e){}draw()}
-function upd(){const b=document.getElementById("bPost");const p=getP()[cur.s];b.textContent=p?"↩️ Desmarcar (ainda não postei)":"✅ Marcar como postado"}
-document.getElementById("bPost").onclick=()=>{setP(cur.s,!getP()[cur.s]);upd()};
-const tg={tE:"e",tN:"n",tA:"a",tO:"o",tB:"bf"};Object.keys(tg).forEach(k=>{document.getElementById(k).onclick=()=>{modo=tg[k];Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",j==k));draw()}});
+function upd(){const b=document.getElementById("bPost");if(modo==="bf"){b.textContent=_bfg()[_bfk()]?"↩️ Desmarcar (ainda não postei hoje)":"✅ Marcar como postado hoje";return}const p=getP()[cur.s];b.textContent=p?"↩️ Desmarcar (ainda não postei)":"✅ Marcar como postado"}
+const _bfk=()=>cur.s+"|"+new Date().toISOString().slice(0,10);const _bfg=()=>{try{return JSON.parse(localStorage.getItem("ab_bf_postado")||"{}")}catch(e){return {}}};
+document.getElementById("bPost").onclick=()=>{if(modo==="bf"){const o=_bfg();if(o[_bfk()])delete o[_bfk()];else o[_bfk()]=1;try{localStorage.setItem("ab_bf_postado",JSON.stringify(o))}catch(e){}upd();return}setP(cur.s,!getP()[cur.s]);upd()};
+const tg={tE:"e",tN:"n",tA:"a",tO:"o",tB:"bf"};Object.keys(tg).forEach(k=>{document.getElementById(k).onclick=()=>{modo=tg[k];Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",j==k));upd();draw()}});
 document.getElementById("bShare").onclick=()=>{window._cv.toBlob(async bl=>{const f=new File([bl],"story-acheibr.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(e){}}else document.getElementById("bDown").click()})};
 const PK="ab_story_postado";const getP=()=>{try{return JSON.parse(localStorage.getItem(PK)||"{}")}catch(e){return {}}};const setP=(k,v)=>{try{const o=getP();if(v)o[k]=1;else delete o[k];localStorage.setItem(PK,JSON.stringify(o))}catch(e){}};
 function busca(){if(SOBF){const p=document.querySelector("#busca p");if(p)p.innerHTML="<b>Black Friday 🖤</b> · negócios participando:"}document.getElementById("busca").style.display="block";msg.textContent="";const q=document.getElementById("q"),l=document.getElementById("lista");
