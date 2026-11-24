@@ -82,7 +82,7 @@ async function carregar(){
   {const ds=data(x.selo);const rec=!ds||(hoje-ds)/864e5<=14;if(x.aprov&&!x.sp&&!PS[slug(n)]&&rec)S.sto.push(x);}
   if(!x.img){S.fot.push(x)}else if(x.aprov&&!EV["log|"+slug(n)])gal.push(x);
   if(/^sim/i.test(g(r,"logo"))&&!EV["log|"+slug(n)])S.log.push(x);
-  const tpn=nz(g(r,"tp")),pvv=g(r,"pv"),pct=(pvv.match(/(\d{1,2})/)||[])[1];const promo=/nao quero|nenhum/.test(tpn)?"":/grat|primeir/.test(tpn)?"1º atendimento grátis":/brinde/.test(tpn)?"Brinde":(/desconto|%/.test(tpn)&&pct)?pct+"% de desconto":(/bonus|euro|€/.test(tpn)&&pct)?"€"+pct+" de bônus":(pvv||g(r,"tp"));
+  const tpn=nz(g(r,"tp")),pvv=g(r,"pv"),pct=(pvv.match(/(\d{1,2})/)||[])[1];const promo=/nao quero|nenhum/.test(tpn)?"":/frete/.test(tpn)?"Frete grátis":/grat|primeir/.test(tpn)?"1º atendimento grátis":/brinde/.test(tpn)?(/[a-zà-ú]{4}/i.test(pvv)?"🎁 "+pvv:"Brinde"):(/desconto|%/.test(tpn)&&pct)?pct+"% de desconto":(/bonus|euro|€/.test(tpn)&&pct)?"€"+pct+" de bônus":(pvv||g(r,"tp"));
   if(x.aprov&&promo){const dt=data(g(r,"ate2")||g(r,"ate1"));const bf=/black/i.test(g(r,"camp")+" "+g(r,"esp"));
    if(!dt||dt>=hoje){x.promo=promo;x.bf=bf;x.dt=dt;x.dias=dt?Math.round((dt-hoje)/864e5):null;S.cup.push(x);if(bf&&!PB[slug(n)+"|"+HJ])S.bf.push(x)}}
  });
