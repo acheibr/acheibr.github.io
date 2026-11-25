@@ -125,5 +125,5 @@ function busca(){if(SOBF){const p=document.querySelector("#busca p");if(p)p.inne
   const novos=L.filter(b=>!P[b.s]),feitos=L.filter(b=>P[b.s]);if(novos.length){mk("PARA POSTAR ("+novos.length+")");novos.forEach(it)}if(feitos.length){mk("JÁ POSTADOS ("+feitos.length+")");feitos.forEach(it)}};q.oninput=r;r()}
 const SOBF=new URLSearchParams(location.search).get("c")==="bf"||new URLSearchParams(location.search).get("m")==="bf";if(new URLSearchParams(location.search).get("m")==="bf")modo="bf";
 (async()=>{if(new URLSearchParams(location.search).get("m")=="e"){modo="e";document.documentElement.classList.add("cli");setTimeout(()=>{Object.keys(tg).forEach(j=>document.getElementById(j).classList.toggle("on",tg[j]=="e"))},0)}try{await load()}catch(e){msg.textContent="Não consegui carregar os cadastros agora.";return}
- const n=slug(new URLSearchParams(location.search).get("n")||"");const b=n&&(BIZ.find(b=>b.s===n)||BIZ.find(b=>b.s.includes(n)));if(b)show(b);else busca()})();
+ const n=slug(new URLSearchParams(location.search).get("n")||"");const b=n&&(BIZ.find(b=>b.s===n)||BIZ.find(b=>b.s.includes(n)));if(b)show(b);else{busca();if(new URLSearchParams(location.search).get("todas"))genAll()}})();
 </script></body></html>
